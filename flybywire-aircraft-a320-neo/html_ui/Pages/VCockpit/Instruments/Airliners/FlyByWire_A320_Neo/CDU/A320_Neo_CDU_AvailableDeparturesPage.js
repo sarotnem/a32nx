@@ -152,7 +152,7 @@ class CDUAvailableDeparturesPage {
                     const enRouteTransition = selectedDeparture.enrouteTransitions[enRouteTransitionIndex];
 
                     if (enRouteTransition) {
-                        rows[2 * i][1] = `${enRouteTransition.ident}${selectedEnRouteTransition.ident === enRouteTransition.ident ? " " : "}"}[color]cyan`;
+                        rows[2 * i][1] = `${enRouteTransition.ident}${(selectedEnRouteTransition ? selectedEnRouteTransition.ident : undefined) === enRouteTransition.ident ? " " : "}"}[color]cyan`;
 
                         mcdu.onRightInput[i + 1] = async () => {
                             try {
