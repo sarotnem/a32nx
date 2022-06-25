@@ -2789,8 +2789,7 @@ class FMCMainDisplay extends BaseAirliners {
 
     trySetTakeOffTransAltitude(s) {
         if (s === FMCMainDisplay.clrValue) {
-            // TODO when possible fetch default from database
-            this.flightPlanManager.setOriginTransitionAltitude();
+            this.flightPlanService.active.performanceData.pilotTransitionAltitude.set(undefined);
             return true;
         }
 
@@ -2806,7 +2805,7 @@ class FMCMainDisplay extends BaseAirliners {
             return false;
         }
 
-        this.flightPlanManager.setOriginTransitionAltitude(value);
+        this.flightPlanService.active.performanceData.pilotTransitionAltitude.set(value);
         return true;
     }
 
