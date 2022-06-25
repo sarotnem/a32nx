@@ -23,7 +23,8 @@ class CDUAvailableDeparturesPage {
             selectedRunwayCell = selectedRunway.ident.substring(2);
             selectedRunwayCellColor = planColor;
         }
-        let selectedSidCell = "------";
+
+        let selectedSidCell = "------\xa0";
         let selectedSidCellColor = "white";
         let selectedTransCell = "------";
         let selectedTransCellColor = "white";
@@ -46,6 +47,10 @@ class CDUAvailableDeparturesPage {
             CDUFlightPlanPage.ShowPage(mcdu);
         };
 
+        /** @type {import("msfs-navdata").Runway} */
+        const runways = targetPlan.availableOriginRunways.slice();
+        runways.sort((a, b) => a.ident.localeCompare(b.ident));
+
         const rows = [[""], [""], [""], [""], [""], [""], [""], [""]];
 
         if (!sidSelection) {
@@ -56,10 +61,15 @@ class CDUAvailableDeparturesPage {
                 const runway = availableRunways[index];
 
                 if (runway) {
+                    const hasIls = runway.lsFrequencyChannel > 0;
+                    const selected = targetPlan.originRunway && runway.ident === targetPlan.originRunway.ident;
+                    const colour = selected ? '{green}' : '{cyan}';
                     rows[2 * i] = [
-                        "{" + runway.ident.substring(2).padEnd(8) + NXUnits.mToUser(runway.length).toFixed(0).padStart(5) + "{small}" + NXUnits.userDistanceUnit().padEnd(2) + "{end}" + "".padEnd(11) + "[color]cyan"
+                        `${colour}${selected ? '\xa0' : '{'}${runway.ident.substring(2).padEnd(3, '\xa0')}${hasIls ? '{small}-ILS{end}' : ''}{end}`,
+                        "",
+                        `${colour}${runway.length.toFixed(0).padStart(5, '\xa0')}{small}M{end}{end}`
                     ];
-                    rows[2 * i + 1] = ["{sp}{sp}{sp}" + Math.round(runway.bearing).toFixed(0).padStart(3, '0') + "[color]cyan",];
+                    rows[2 * i + 1] = [`\xa0\xa0\xa0${colour}${Utils.leadingZeros(Math.round((runway.magneticBearing)), 3)}\xa0${hasIls ? `${runway.lsIdent.padStart(5, '\xa0')}/${runway.lsFrequencyChannel.toFixed(2)}` : ''}`];
 
                     mcdu.onLeftInput[i + 1] = async () => {
                         try {
@@ -99,8 +109,9 @@ class CDUAvailableDeparturesPage {
                 let runwayTransitionIdent = '';
                 if (sid) {
                     let sidMatchesSelectedRunway = false;
-
-                    if (selectedRunway) {
+                    if (!selectedRunway || sid.runwayTransitions.length === 0) {
+                        sidMatchesSelectedRunway = true;
+                    } else {
                         for (let j = 0; j < sid.runwayTransitions.length; j++) {
                             if (sid.runwayTransitions[j].ident === selectedRunway.ident) {
                                 sidMatchesSelectedRunway = true;
@@ -220,10 +231,10 @@ class CDUAvailableDeparturesPage {
         }
         mcdu.setArrows(up, down, true, true);
         mcdu.setTemplate([
-            ["{sp}DEPARTURES {small}FROM{end} {green}" + targetPlan.originAirport.ident + "{sp}{sp}{sp}"],
-            ["{sp}RWY", "TRANS{sp}", "{sp}SID"],
+            ["DEPARTURES {small}FROM{end} {green}" + airport.ident + "{end}\xa0\xa0"],
+            ["{sp}RWY", "TRANS{sp}", "SID\xa0"],
             [selectedRunwayCell + "[color]" + selectedRunwayCellColor, selectedTransCell + "[color]" + selectedTransCellColor, selectedSidCell + "[color]" + selectedSidCellColor],
-            sidSelection ? ["SIDS", "TRANS", "AVAILABLE"] : ["", "", "AVAILABLE RUNWAYS{sp}"],
+            sidSelection ? ["SIDS", "TRANS", "AVAILABLE"] : ["", "", "AVAILABLE RUNWAYS\xa0"],
             rows[0],
             rows[1],
             rows[2],
