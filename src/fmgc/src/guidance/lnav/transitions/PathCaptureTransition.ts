@@ -37,7 +37,6 @@ import {
     placeBearingIntersection,
     smallCircleGreatCircleIntersection,
 } from 'msfs-geo';
-import { fixCoordinates } from '@fmgc/flightplanning/new/utils';
 import { Leg } from '../legs/Leg';
 import { CFLeg } from '../legs/CF';
 import { CRLeg } from '../legs/CR';
@@ -112,7 +111,7 @@ export class PathCaptureTransition extends Transition {
         } else if ('lat' in this.previousLeg.terminationWaypoint) {
             prevLegTermFix = this.previousLeg.terminationWaypoint;
         } else {
-            prevLegTermFix = fixCoordinates(this.previousLeg.terminationWaypoint.location);
+            prevLegTermFix = this.previousLeg.terminationWaypoint.location;
         }
 
         // Start the transition before the termination fix if we are reverted because of an overshoot
@@ -124,8 +123,8 @@ export class PathCaptureTransition extends Transition {
 
             // If we are inbound of a TF leg, we use getIntermediatePoint in order to get more accurate results
             if ('from' in this.previousLeg) {
-                const start = fixCoordinates(this.previousLeg.from.location);
-                const end = fixCoordinates(this.previousLeg.to.location);
+                const start = this.previousLeg.from.location;
+                const end = this.previousLeg.to.location;
                 const length = distanceTo(start, end);
 
                 const ratio = (length - this.tad) / length;
