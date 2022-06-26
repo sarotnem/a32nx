@@ -21,6 +21,8 @@ import { CRLeg } from '@fmgc/guidance/lnav/legs/CR';
 import { CILeg } from '@fmgc/guidance/lnav/legs/CI';
 import { AFLeg } from '@fmgc/guidance/lnav/legs/AF';
 import { DmeArcTransition } from '@fmgc/guidance/lnav/transitions/DmeArcTransition';
+import { CDLeg } from '@fmgc/guidance/lnav/legs/CD';
+import { FDLeg } from '@fmgc/guidance/lnav/legs/FD';
 
 export class TransitionPicker {
     static forLegs(from: Leg, to: Leg): Transition | null {
@@ -30,11 +32,23 @@ export class TransitionPicker {
         if (from instanceof CALeg) {
             return TransitionPicker.fromCA(from, to);
         }
+        if (from instanceof CDLeg) {
+            return TransitionPicker.fromCD(from, to);
+        }
         if (from instanceof CFLeg) {
             return TransitionPicker.fromCF(from, to);
         }
+        if (from instanceof CILeg) {
+            return TransitionPicker.fromCI(from, to);
+        }
+        if (from instanceof CRLeg) {
+            return TransitionPicker.fromCR(from, to);
+        }
         if (from instanceof DFLeg) {
             return TransitionPicker.fromDF(from, to);
+        }
+        if (from instanceof FDLeg) {
+            return TransitionPicker.fromFD(from, to);
         }
         if (from instanceof HALeg || from instanceof HFLeg || from instanceof HMLeg) {
             return TransitionPicker.fromHX(from, to);
@@ -44,12 +58,6 @@ export class TransitionPicker {
         }
         if (from instanceof TFLeg) {
             return TransitionPicker.fromTF(from, to);
-        }
-        if (from instanceof CILeg) {
-            return TransitionPicker.fromCI(from, to);
-        }
-        if (from instanceof CRLeg) {
-            return TransitionPicker.fromCR(from, to);
         }
         if (from instanceof VMLeg) {
             return TransitionPicker.fromVM(from, to);
@@ -66,11 +74,17 @@ export class TransitionPicker {
         if (to instanceof CALeg) {
             return new CourseCaptureTransition(from, to);
         }
+        if (to instanceof CDLeg) {
+            return new CourseCaptureTransition(from, to);
+        }
         if (to instanceof CFLeg) {
             return new PathCaptureTransition(from, to);
         }
         if (to instanceof DFLeg) {
             return new DirectToFixTransition(from, to);
+        }
+        if (to instanceof FDLeg) {
+            return new PathCaptureTransition(from, to);
         }
         if (to instanceof CILeg) {
             return new CourseCaptureTransition(from, to);
@@ -92,8 +106,41 @@ export class TransitionPicker {
         return null;
     }
 
+    private static fromCD(from: CDLeg, to: Leg): Transition | null {
+        if (to instanceof AFLeg) {
+            return new DmeArcTransition(from, to);
+        }
+        if (to instanceof CALeg) {
+            return new CourseCaptureTransition(from, to);
+        }
+        if (to instanceof CDLeg) {
+            return new CourseCaptureTransition(from, to);
+        }
+        if (to instanceof CFLeg) {
+            return new PathCaptureTransition(from, to);
+        }
+        if (to instanceof CILeg) {
+            return new CourseCaptureTransition(from, to);
+        }
+        if (to instanceof CRLeg) {
+            return new CourseCaptureTransition(from, to);
+        }
+        if (to instanceof DFLeg) {
+            return new DirectToFixTransition(from, to);
+        }
+        if (to instanceof FDLeg) {
+            return new PathCaptureTransition(from, to);
+        }
+        if (to instanceof VMLeg) {
+            return new CourseCaptureTransition(from, to);
+        }
+    }
+
     private static fromAF(from: AFLeg, to: Leg): Transition | null {
         if (to instanceof CALeg) {
+            return new CourseCaptureTransition(from, to);
+        }
+        if (to instanceof CDLeg) {
             return new CourseCaptureTransition(from, to);
         }
         if (to instanceof CFLeg) {
@@ -105,6 +152,11 @@ export class TransitionPicker {
         }
         if (to instanceof CRLeg) {
             return new CourseCaptureTransition(from, to);
+        }
+        if (to instanceof FDLeg) {
+            // TODO here we might wanna do a DmeArcTransition; need to check ARINC 424 and IRL FMS to see if this would actually happen
+            // (waypoint would need to lie on DME arc)
+            return new PathCaptureTransition(from, to);
         }
         if (to instanceof HALeg || to instanceof HFLeg || to instanceof HMLeg) {
             return new HoldEntryTransition(from, to);
@@ -130,12 +182,18 @@ export class TransitionPicker {
         if (to instanceof CALeg) {
             return new CourseCaptureTransition(from, to);
         }
+        if (to instanceof CDLeg) {
+            return new CourseCaptureTransition(from, to);
+        }
         if (to instanceof CFLeg) {
             // FIXME fixed radius / revert to path capture
             return new PathCaptureTransition(from, to);
         }
         if (to instanceof DFLeg) {
             return new DirectToFixTransition(from, to);
+        }
+        if (to instanceof FDLeg) {
+            return new PathCaptureTransition(from, to);
         }
         if (to instanceof HALeg || to instanceof HFLeg || to instanceof HMLeg) {
             return new HoldEntryTransition(from, to);
@@ -167,6 +225,9 @@ export class TransitionPicker {
         if (to instanceof CFLeg) {
             return new FixedRadiusTransition(from, to);
         }
+        if (to instanceof FDLeg) {
+            return new PathCaptureTransition(from, to);
+        }
 
         if (DEBUG) {
             console.error(`Illegal sequence CILeg -> ${to.constructor.name}`);
@@ -182,11 +243,17 @@ export class TransitionPicker {
         if (to instanceof CALeg) {
             return new CourseCaptureTransition(from, to);
         }
+        if (to instanceof CDLeg) {
+            return new CourseCaptureTransition(from, to);
+        }
         if (to instanceof CFLeg) {
             return new FixedRadiusTransition(from, to);
         }
         if (to instanceof DFLeg) {
             return new DirectToFixTransition(from, to);
+        }
+        if (to instanceof FDLeg) {
+            return new PathCaptureTransition(from, to);
         }
         if (to instanceof HALeg || to instanceof HFLeg || to instanceof HMLeg) {
             return new HoldEntryTransition(from, to);
@@ -218,11 +285,17 @@ export class TransitionPicker {
         if (to instanceof CALeg) {
             return new CourseCaptureTransition(from, to);
         }
+        if (to instanceof CDLeg) {
+            return new CourseCaptureTransition(from, to);
+        }
         if (to instanceof CFLeg) {
             return new PathCaptureTransition(from, to);
         }
         if (to instanceof DFLeg) {
             return new DirectToFixTransition(from, to);
+        }
+        if (to instanceof FDLeg) {
+            return new PathCaptureTransition(from, to);
         }
         if (to instanceof TFLeg) {
             return new PathCaptureTransition(from, to);
@@ -248,8 +321,14 @@ export class TransitionPicker {
         if (to instanceof CALeg) {
             return new CourseCaptureTransition(from, to);
         }
+        if (to instanceof CDLeg) {
+            return new CourseCaptureTransition(from, to);
+        }
         if (to instanceof CILeg) {
             return new CourseCaptureTransition(from, to);
+        }
+        if (to instanceof FDLeg) {
+            return new PathCaptureTransition(from, to);
         }
         if (to instanceof HALeg || to instanceof HFLeg || to instanceof HMLeg) {
             return new HoldEntryTransition(from, to);
@@ -269,12 +348,27 @@ export class TransitionPicker {
         if (to instanceof CALeg) {
             return new CourseCaptureTransition(from, to);
         }
+        if (to instanceof CDLeg) {
+            return new CourseCaptureTransition(from, to);
+        }
         if (to instanceof CFLeg) {
             // FIXME / revert to fixed radius
             return new FixedRadiusTransition(from, to);
         }
         if (to instanceof DFLeg) {
             return new DirectToFixTransition(from, to);
+        }
+        if (to instanceof FDLeg) {
+            const fromLegWaypointID = from.metadata.flightPlanLegDefinition.waypoint.databaseId;
+            const toLegWaypointID = to.metadata.flightPlanLegDefinition.waypoint.databaseId;
+
+            // If the FD leg starts at the same fix as the one on which the TF leg ends, we can use a fixed radius transition
+            // instead to get a cleaner turn
+            if (fromLegWaypointID === toLegWaypointID) {
+                return new FixedRadiusTransition(from, to);
+            }
+
+            return new PathCaptureTransition(from, to);
         }
         if (to instanceof HALeg || to instanceof HFLeg || to instanceof HMLeg) {
             return new HoldEntryTransition(from, to);
@@ -303,12 +397,18 @@ export class TransitionPicker {
         if (to instanceof CALeg) {
             return new CourseCaptureTransition(from, to);
         }
+        if (to instanceof CDLeg) {
+            return new CourseCaptureTransition(from, to);
+        }
         if (to instanceof CFLeg) {
             // FIXME / revert to fixed radius
             return new PathCaptureTransition(from, to);
         }
         if (to instanceof DFLeg) {
             return new DirectToFixTransition(from, to);
+        }
+        if (to instanceof FDLeg) {
+            return new PathCaptureTransition(from, to);
         }
         if (to instanceof CILeg) {
             return new CourseCaptureTransition(from, to);
@@ -327,15 +427,51 @@ export class TransitionPicker {
         return null;
     }
 
-    private static fromVM(from: VMLeg, to: Leg): Transition | null {
+    private static fromFD(from: FDLeg, to: Leg) {
+        if (to instanceof AFLeg) {
+            return new DmeArcTransition(from, to);
+        }
         if (to instanceof CALeg) {
+            return new CourseCaptureTransition(from, to);
+        }
+        if (to instanceof CDLeg) {
+            return new CourseCaptureTransition(from, to);
+        }
+        if (to instanceof CFLeg) {
+            return new PathCaptureTransition(from, to);
+        }
+        if (to instanceof CILeg) {
+            return new CourseCaptureTransition(from, to);
+        }
+        if (to instanceof CRLeg) {
             return new CourseCaptureTransition(from, to);
         }
         if (to instanceof DFLeg) {
             return new DirectToFixTransition(from, to);
         }
+        if (to instanceof VMLeg) {
+            return new CourseCaptureTransition(from, to);
+        }
+
+        if (DEBUG) {
+            console.error(`Illegal sequence FDLEg -> ${to.constructor.name}`);
+        }
+
+        return null;
+    }
+
+    private static fromVM(from: VMLeg, to: Leg): Transition | null {
+        if (to instanceof CALeg) {
+            return new CourseCaptureTransition(from, to);
+        }
+        if (to instanceof CDLeg) {
+            return new CourseCaptureTransition(from, to);
+        }
         if (to instanceof CILeg) {
             return new CourseCaptureTransition(from, to);
+        }
+        if (to instanceof DFLeg) {
+            return new DirectToFixTransition(from, to);
         }
         if (to instanceof CRLeg) {
             return new CourseCaptureTransition(from, to);

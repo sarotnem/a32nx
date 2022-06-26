@@ -37,13 +37,16 @@ import {
     placeBearingIntersection,
     smallCircleGreatCircleIntersection,
 } from 'msfs-geo';
+import { CDLeg } from '@fmgc/guidance/lnav/legs/CD';
+import { FDLeg } from '@fmgc/guidance/lnav/legs/FD';
+import { RFLeg } from '@fmgc/guidance/lnav/legs/RF';
 import { Leg } from '../legs/Leg';
 import { CFLeg } from '../legs/CF';
 import { CRLeg } from '../legs/CR';
 
-export type PrevLeg = AFLeg | CALeg | /* CDLeg | */ CRLeg | /* FALeg | */ HALeg | HFLeg | HMLeg;
+export type PrevLeg = AFLeg | CALeg | CDLeg | CRLeg | /* FALeg | */ FDLeg | HALeg | HFLeg | HMLeg | RFLeg;
 export type ReversionLeg = CFLeg | CILeg | DFLeg | TFLeg;
-export type NextLeg = AFLeg | CFLeg | /* FALeg | */ TFLeg;
+export type NextLeg = AFLeg | CFLeg | FDLeg | /* FALeg | */ TFLeg;
 
 const cos = (input: Degrees) => Math.cos(input * (Math.PI / 180));
 const tan = (input: Degrees) => Math.tan(input * MathUtils.DEGREES_TO_RADIANS);
