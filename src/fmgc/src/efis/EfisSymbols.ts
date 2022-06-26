@@ -16,9 +16,9 @@ import { FlightPlanService } from '@fmgc/flightplanning/new/FlightPlanService';
 import { Airport, AltitudeDescriptor, LegType, Runway, WaypointDescriptor } from 'msfs-navdata';
 import { MathUtils } from '@shared/MathUtils';
 import { SegmentClass } from '@fmgc/flightplanning/new/segments/SegmentClass';
+import { NavigationDatabase } from '@fmgc/NavigationDatabase';
 import { RunwaySurface, VorType } from '../types/fstypes/FSEnums';
 import { NearbyFacilities } from './NearbyFacilities';
-import { NavigationDatabase } from '@fmgc/NavigationDatabase';
 
 export class EfisSymbols {
     private blockUpdate = false;
@@ -300,7 +300,7 @@ export class EfisSymbols {
 
             for (const [index, leg] of this.guidanceController.activeGeometry.legs.entries()) {
                 if (!leg.isNull && leg.terminationWaypoint && leg.displayedOnMap) {
-                    if (!(leg.terminationWaypoint instanceof WayPoint)) {
+                    if (!('location' in leg.terminationWaypoint)) {
                         const isActive = index === this.guidanceController.activeLegIndex;
 
                         let type = NdSymbolTypeFlags.FlightPlan;
@@ -317,13 +317,11 @@ export class EfisSymbols {
                         const cutIdent = leg.ident.substring(0, 4).padEnd(5, ' ');
                         const id = (Math.random() * 10_000_000).toString().substring(0, 5);
 
-                        const location = 'lat' in leg.terminationWaypoint ? leg.terminationWaypoint : leg.terminationWaypoint.location;
-
                         upsertSymbol({
                             databaseId: `X${id}${cutIdent}`,
                             ident,
                             type,
-                            location,
+                            location: leg.terminationWaypoint,
                         });
                     }
                 }
