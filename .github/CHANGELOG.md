@@ -47,6 +47,7 @@
 1. [EFB] Added Payload Loading to EFB - @2hwk (2Cas#1022)
 1. [FMGC] Fix unnatural turn direction for path capture transition - @tracernz (Mike)
 1. [FMGC] Fix unnatural turn direction for course capture transition - @tracernz (Mike)
+1. [FMGC] Improve procedure loading performance - @tracernz (Mike)
 
 ## 0.8.0
 
